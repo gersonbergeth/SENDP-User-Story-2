@@ -387,12 +387,12 @@
         }).addTo(map);
       }
 
-      // Update counter
-      document.getElementById('total-demand').textContent = Math.round(totalDemand / 1000) + 'k';
-
       // Update dashboard
       const periodFactors = { '1m': 0.33, '3m': 1, '6m': 2, '12m': 4 };
       const scaledDemand = Math.round(totalDemand * periodFactors[period]);
+
+      // Update counter with scaled demand
+      document.getElementById('total-demand').textContent = Math.round(scaledDemand / 1000) + 'k';
       
       let dashHTML = `
         <div class="dash-section">
