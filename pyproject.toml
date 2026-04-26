@@ -1,0 +1,10 @@
+[project]
+name = "send-p-user-story-2"
+version = "0.1.0"
+description = "SEND-P User Story 2"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.136.0",
+    "uvicorn>=0.44.0",
+]
