@@ -3,329 +3,459 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SEND-P — User Story 2</title>
+  <title>SEND-P — Demand Planning & Forecasting</title>
 
-  <!-- Fonts: Syne (display) + IBM Plex Sans (body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/simpleheat@1.3.0/simpleheat.js"></script>
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 
   <style>
-    /* =============================================
-       CSS VARIABLES — CCS BRAND SYSTEM 2026
-       ============================================= */
     :root {
-      /* Primary palette */
-      --black:       #000000;
-      --navy:        #233047;
-      --navy-mid:    #2d3d5c;
-      --navy-dark:   #1a2438;
-      --green:       #55734F;
-      --cream:       #FFE8D5;
-      --coral:       #FC927A;
-      --burgundy:    #4C1515;
-      /* Secondary palette */
-      --sky:         #ADD5E1;
-      --teal:        #2FA8A5;
-      --teal-dark:   #1B6249;
-      --amber:       #D88B09;
-      --brown:       #603913;
-      --muted-red:   #9A403F;
-      /* Neutrals */
-      --white:       #FFFFFF;
-      --off-white:   #F8F7F5;
-      --g50:         #F2F1EF;
-      --g100:        #E8E6E2;
-      --g200:        #D0CEC9;
-      --g300:        #B0ADA6;
-      --g400:        #8E8B83;
-      --g500:        #6A6760;
-      --g600:        #4A4840;
-      --g700:        #2E2C26;
-      /* Layout */
-      --nav-h:       60px;
-      --side-w:      304px;
-      /* Type */
+      --navy: #233047;
+      --cream: #FFE8D5;
+      --coral: #FC927A;
+      --teal: #2FA8A5;
+      --white: #FFFFFF;
+      --off-white: #F8F7F5;
+      --g100: #E8E6E2;
+      --g200: #D0CEC9;
+      --g400: #8E8B83;
+      --g500: #6A6760;
+      --g600: #4A4840;
+      --g700: #2E2C26;
       --font-d: 'Syne', sans-serif;
-      --font-b: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, sans-serif;
+      --font-b: 'IBM Plex Sans', sans-serif;
     }
 
-    /* =============================================
-       RESET
-       ============================================= */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; }
-    body {
-      font-family: var(--font-b);
-      background: var(--off-white);
-      color: var(--g700);
-      -webkit-font-smoothing: antialiased;
-    }
+    body { font-family: var(--font-b); background: var(--off-white); color: var(--g700); }
 
-    /* =============================================
-       NAV
-       ============================================= */
     .nav {
-      position: fixed; top: 0; left: 0; right: 0;
-      height: var(--nav-h);
-      background: var(--navy);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 28px;
-      z-index: 900;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      position: fixed; top: 0; left: 0; right: 0; height: 60px;
+      background: var(--navy); display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; z-index: 900; border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    .nav-left { display: flex; align-items: center; gap: 18px; }
-    .nav-logo { height: 26px; display: block; }
-    .nav-sep { width: 1px; height: 22px; background: rgba(255,255,255,0.12); }
-    .nav-brand-name {
-      font-family: var(--font-d); font-weight: 800; font-size: 13px;
-      letter-spacing: 0.14em; text-transform: uppercase; color: var(--white);
-    }
-    .nav-brand-name span { color: var(--coral); }
-    .nav-brand-sub { font-size: 9px; color: rgba(255,255,255,0.35); letter-spacing: 0.05em; margin-top: 1px; }
-    .nav-tabs { display: flex; gap: 2px; margin-left: 8px; }
-    .nav-tab {
-      padding: 5px 13px; font-size: 12px; font-weight: 500;
-      color: rgba(255,255,255,0.45); border-radius: 6px; cursor: pointer;
-      transition: all 0.15s; text-decoration: none;
-    }
-    .nav-tab:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.05); }
-    .nav-tab.active { color: var(--white); background: rgba(255,255,255,0.10); }
-    .nav-right { display: flex; align-items: center; gap: 12px; }
-    .nav-role {
-      padding: 3px 10px;
-      background: rgba(252,146,122,0.12); border: 1px solid rgba(252,146,122,0.28);
-      border-radius: 20px; font-size: 10px; font-weight: 600; color: var(--coral);
-      letter-spacing: 0.04em;
-    }
-    .nav-avatar {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--coral) 0%, var(--burgundy) 100%);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-d); font-size: 11px; font-weight: 700; color: white;
-    }
+    .nav-brand { color: white; font-family: var(--font-d); font-weight: 800; font-size: 13px; letter-spacing: 0.14em; }
+    .nav-brand span { color: var(--coral); }
 
-    /* =============================================
-       PAGE SHELL
-       ============================================= */
-    .page {
-      position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
-      display: flex; overflow: hidden;
-    }
+    .page { position: fixed; top: 60px; left: 0; right: 0; bottom: 0; display: flex; overflow: hidden; }
 
-    /* =============================================
-       SIDEBAR — FILTER (LIGHT / CREAM)
-       ============================================= */
     .sidebar {
-      width: var(--side-w); min-width: var(--side-w);
-      background: var(--cream);
-      display: flex; flex-direction: column;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(35,48,71,0.12) transparent;
-      border-right: 1px solid rgba(35,48,71,0.10);
+      width: 304px; background: var(--cream); display: flex; flex-direction: column;
+      overflow-y: auto; border-right: 1px solid rgba(35,48,71,0.10);
     }
-    .sidebar::-webkit-scrollbar { width: 3px; }
-    .sidebar::-webkit-scrollbar-thumb { background: rgba(35,48,71,0.10); }
 
-    /* Counter hero block */
-    .counter-block {
-      padding: 22px 20px 18px;
-      border-bottom: 1px solid rgba(35,48,71,0.08);
-    }
-    .cb-eyebrow {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
-      text-transform: uppercase; color: rgba(35,48,71,0.40); margin-bottom: 10px;
-    }
-    .cb-main { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 8px; }
-    .cb-num {
-      font-family: var(--font-d); font-size: 56px; font-weight: 800;
-      line-height: 1; color: var(--burgundy);
-      transition: all 0.35s ease;
-    }
-    .cb-lbl { font-size: 13px; font-weight: 400; color: rgba(35,48,71,0.55); padding-bottom: 7px; line-height: 1.3; }
-    .cb-track { height: 2px; background: rgba(35,48,71,0.10); border-radius: 1px; overflow: hidden; }
-    .cb-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--coral), var(--amber));
-      border-radius: 1px; transition: width 0.4s ease;
-    }
-    .cb-sub { margin-top: 7px; font-size: 10px; color: rgba(35,48,71,0.38); }
+    .counter-block { padding: 22px 20px 18px; border-bottom: 1px solid rgba(35,48,71,0.08); }
+    .cb-num { font-family: var(--font-d); font-size: 56px; font-weight: 800; color: #4C1515; }
+    .cb-lbl { font-size: 13px; color: rgba(35,48,71,0.55); }
 
-    /* Filter sections */
     .filter-section { border-bottom: 1px solid rgba(35,48,71,0.07); }
-    .fs-trigger {
-      display: flex; align-items: center; gap: 11px;
-      padding: 13px 20px; cursor: pointer; transition: background 0.12s;
-    }
+    .fs-trigger { padding: 13px 20px; cursor: pointer; display: flex; align-items: center; gap: 11px; }
     .fs-trigger:hover { background: rgba(35,48,71,0.04); }
-    .fs-dot {
-      width: 24px; height: 24px; border-radius: 50%;
-      border: 1.5px solid rgba(35,48,71,0.20);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-d); font-size: 10px; font-weight: 700;
-      color: rgba(35,48,71,0.35); flex-shrink: 0; transition: all 0.2s;
-    }
-    .filter-section.active .fs-dot { background: var(--teal); border-color: var(--teal); color: white; }
-    .fs-meta { flex: 1; }
-    .fs-name {
-      font-family: var(--font-d); font-size: 11px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.07em;
-      color: rgba(35,48,71,0.40); transition: color 0.2s;
-    }
-    .filter-section.active .fs-name { color: var(--navy); }
-    .fs-sel { font-size: 10px; color: var(--teal-dark); margin-top: 2px; font-weight: 600; min-height: 14px; }
-    .fs-chev { font-size: 9px; color: rgba(35,48,71,0.25); transition: transform 0.2s; }
-    .filter-section.open .fs-chev { transform: rotate(90deg); }
+    .fs-name { font-family: var(--font-d); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: rgba(35,48,71,0.40); }
+    .fs-sel { font-size: 10px; color: var(--teal); margin-top: 2px; }
     .fs-body { padding: 0 20px 14px; display: none; }
     .filter-section.open .fs-body { display: block; }
+    .fl { font-size: 9px; font-weight: 700; text-transform: uppercase; color: rgba(35,48,71,0.38); margin: 10px 0 5px; }
+    .ss { width: 100%; padding: 7px 10px; border: 1px solid rgba(35,48,71,0.15); border-radius: 7px; font-size: 11px; margin-bottom: 8px; }
 
-    /* Form elements in sidebar */
-    .fl { font-size: 9px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: rgba(35,48,71,0.38); margin-bottom: 5px; margin-top: 10px; }
-    .fl:first-child { margin-top: 0; }
-    .ss {
-      width: 100%; padding: 7px 26px 7px 10px;
-      background: rgba(255,255,255,0.65); border: 1px solid rgba(35,48,71,0.15);
-      border-radius: 7px; color: var(--navy);
-      font-family: var(--font-b); font-size: 11px; appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg width='9' height='5' viewBox='0 0 9 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L4.5 4L8 1' stroke='%23233047' stroke-opacity='0.4' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 9px center;
-      cursor: pointer; margin-bottom: 5px; transition: border-color 0.15s;
-    }
-    .ss:hover { border-color: rgba(35,48,71,0.25); }
-    .ss:focus { outline: none; border-color: var(--teal); }
-
-    /* =============================================
-       MAP CONTAINER
-       ============================================= */
-    .map-container {
-      flex: 1; position: relative; overflow: hidden;
-    }
+    .map-container { flex: 1; position: relative; }
     #map { width: 100%; height: 100%; }
 
-    /* =============================================
-       RESULTS PANEL (right side)
-       ============================================= */
-    .results {
-      width: 340px; min-width: 340px;
-      background: var(--white);
-      border-left: 1px solid var(--g200);
-      display: flex; flex-direction: column;
-      overflow: hidden;
+    .results { width: 340px; background: white; border-left: 1px solid var(--g200); display: flex; flex-direction: column; overflow: hidden; }
+    .results-header { padding: 18px 20px; border-bottom: 1px solid var(--g100); background: var(--off-white); }
+    .results-title { font-family: var(--font-d); font-size: 14px; font-weight: 700; }
+    .results-list { flex: 1; overflow-y: auto; }
+    .dash-section { padding: 16px 20px; }
+    .dash-title { font-family: var(--font-d); font-size: 11px; font-weight: 700; text-transform: uppercase; color: rgba(35,48,71,0.55); margin-bottom: 10px; }
+    .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(35,48,71,0.05); font-size: 11px; }
+    .stat-label { color: var(--g600); }
+    .stat-value { font-family: var(--font-d); font-weight: 700; color: var(--coral); }
+
+    .legend { padding: 12px 20px; border-top: 1px solid var(--g100); background: var(--g50); font-size: 9px; }
+    .legend-title { font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+    .legend-item { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; }
+    .legend-color { width: 16px; height: 16px; border-radius: 2px; }
+
+    .clear-btn {
+      width: calc(100% - 40px); margin: 12px 20px; padding: 10px 14px;
+      background: var(--coral); color: white; border: none; border-radius: 6px;
+      font-family: var(--font-b); font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: background 0.2s ease;
     }
-    .results-header {
-      padding: 18px 20px;
-      border-bottom: 1px solid var(--g100);
-      background: var(--off-white);
-    }
-    .results-title {
-      font-family: var(--font-d); font-size: 14px; font-weight: 700;
-      color: var(--g700);
-    }
-    .results-list {
-      flex: 1; overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(35,48,71,0.08) transparent;
-    }
-    .results-list::-webkit-scrollbar { width: 3px; }
-    .results-list::-webkit-scrollbar-thumb { background: rgba(35,48,71,0.08); }
-    .result-item {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--g100);
-      cursor: pointer; transition: background 0.12s;
-    }
-    .result-item:hover { background: var(--g50); }
-    .ri-name {
-      font-family: var(--font-d); font-size: 12px; font-weight: 700;
-      color: var(--navy); margin-bottom: 4px;
-    }
-    .ri-meta {
-      font-size: 10px; color: var(--g500); line-height: 1.4;
-    }
-    .empty-state {
-      padding: 60px 20px 20px;
-      text-align: center; color: var(--g400);
-      font-size: 12px;
-    }
+    .clear-btn:hover { background: #F27D62; }
   </style>
 </head>
 <body>
-  <!-- NAV -->
   <nav class="nav">
-    <div class="nav-left">
-      <svg class="nav-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="48" fill="none" stroke="white" stroke-width="2"/>
-        <text x="50" y="60" text-anchor="middle" fill="white" font-family="Syne, sans-serif" font-size="40" font-weight="800">P</text>
-      </svg>
-      <div class="nav-sep"></div>
-      <div>
-        <div class="nav-brand-name">SEND<span>-P</span></div>
-        <div class="nav-brand-sub">USER STORY 2</div>
-      </div>
-    </div>
-    <div class="nav-tabs">
-      <a href="/" class="nav-tab active">Directory</a>
-    </div>
-    <div class="nav-right">
-      <span class="nav-role">VIEWER</span>
-      <div class="nav-avatar">GB</div>
-    </div>
+    <div class="nav-brand">SEND<span>-P</span> Demand Planning</div>
   </nav>
 
-  <!-- PAGE -->
   <div class="page">
-    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="counter-block">
-        <div class="cb-eyebrow">Total Results</div>
-        <div class="cb-main">
-          <div class="cb-num">0</div>
-          <div class="cb-lbl">items</div>
+        <div style="font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(35,48,71,0.40); margin-bottom: 10px;">Total Demand</div>
+        <div class="cb-num" id="total-demand">0</div>
+        <div class="cb-lbl">people</div>
+      </div>
+
+      <!-- Admin 1 Filter -->
+      <div class="filter-section">
+        <div class="fs-trigger" onclick="toggleFilter(this)">
+          <div style="font-family: var(--font-d); font-size: 11px; font-weight: 700; width: 24px;">①</div>
+          <div style="flex: 1;">
+            <div class="fs-name">Admin 1 (State)</div>
+            <div class="fs-sel" id="admin1-sel"></div>
+          </div>
+          <div style="font-size: 9px;">›</div>
         </div>
-        <div class="cb-track">
-          <div class="cb-fill" style="width: 0%"></div>
+        <div class="fs-body">
+          <label class="fl">Select State</label>
+          <select class="ss" id="admin1-select" onchange="updateAdmin1()">
+            <option value="">All States</option>
+            <option value="darfur">Darfur</option>
+            <option value="kordofan">South Kordofan</option>
+            <option value="eastern">Eastern</option>
+            <option value="central">Central</option>
+            <option value="northern">Northern</option>
+          </select>
         </div>
       </div>
 
-      <!-- Filters will be populated here -->
-      <div class="filter-section" style="padding: 20px;">
-        <p style="color: rgba(35,48,71,0.55); font-size: 12px; text-align: center;">
-          Filters will be defined for this page.
-        </p>
+      <!-- Admin 2 Filter -->
+      <div class="filter-section">
+        <div class="fs-trigger" onclick="toggleFilter(this)">
+          <div style="font-family: var(--font-d); font-size: 11px; font-weight: 700; width: 24px;">②</div>
+          <div style="flex: 1;">
+            <div class="fs-name">Admin 2 (Locality)</div>
+            <div class="fs-sel" id="admin2-sel"></div>
+          </div>
+          <div style="font-size: 9px;">›</div>
+        </div>
+        <div class="fs-body">
+          <label class="fl">Select Locality</label>
+          <select class="ss" id="admin2-select" onchange="updateFilters()">
+            <option value="">All Localities</option>
+          </select>
+        </div>
       </div>
+
+      <!-- Time Period -->
+      <div class="filter-section">
+        <div class="fs-trigger" onclick="toggleFilter(this)">
+          <div style="font-family: var(--font-d); font-size: 11px; font-weight: 700; width: 24px;">③</div>
+          <div style="flex: 1;">
+            <div class="fs-name">Time Period</div>
+            <div class="fs-sel" id="period-sel"></div>
+          </div>
+          <div style="font-size: 9px;">›</div>
+        </div>
+        <div class="fs-body">
+          <label class="fl">Forecast Horizon</label>
+          <select class="ss" id="period-select" onchange="updateFilters()">
+            <option value="1m">1 Month</option>
+            <option value="3m" selected>3 Months</option>
+            <option value="6m">6 Months</option>
+            <option value="12m">12 Months</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Payment Modality -->
+      <div class="filter-section">
+        <div class="fs-trigger" onclick="toggleFilter(this)">
+          <div style="font-family: var(--font-d); font-size: 11px; font-weight: 700; width: 24px;">④</div>
+          <div style="flex: 1;">
+            <div class="fs-name">Payment Method</div>
+            <div class="fs-sel" id="modality-sel"></div>
+          </div>
+          <div style="font-size: 9px;">›</div>
+        </div>
+        <div class="fs-body">
+          <label class="fl">Select Modality</label>
+          <select class="ss" id="modality-select" onchange="updateFilters()">
+            <option value="">All Methods</option>
+            <option value="mm">Mobile Money</option>
+            <option value="dw">Digital Wallet</option>
+            <option value="cih">Cash in Hand</option>
+            <option value="vch">Voucher</option>
+            <option value="haw">Hawala</option>
+            <option value="ot">Operational Transfer</option>
+            <option value="it">International Transfer</option>
+            <option value="sc">StableCoin</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Implementing Organization -->
+      <div class="filter-section">
+        <div class="fs-trigger" onclick="toggleFilter(this)">
+          <div style="font-family: var(--font-d); font-size: 11px; font-weight: 700; width: 24px;">⑤</div>
+          <div style="flex: 1;">
+            <div class="fs-name">Organization</div>
+            <div class="fs-sel" id="org-sel"></div>
+          </div>
+          <div style="font-size: 9px;">›</div>
+        </div>
+        <div class="fs-body">
+          <label class="fl">Implementing Org</label>
+          <select class="ss" id="org-select" onchange="updateFilters()">
+            <option value="">All Organizations</option>
+            <option value="horizonaid">Horizon Aid</option>
+            <option value="virtushelp">Virtus Help</option>
+            <option value="nexusrelief">Nexus Relief</option>
+            <option value="solidarityworks">Solidarity Works</option>
+            <option value="communitybuild">Community Build</option>
+            <option value="adaptfuture">Adapt Future</option>
+            <option value="empowerinc">Empower Inc</option>
+            <option value="pathforward">Path Forward</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="clear-btn" onclick="clearFilters()">Clear Filters</button>
     </aside>
 
-    <!-- MAP -->
     <div class="map-container">
       <div id="map"></div>
     </div>
 
-    <!-- RESULTS -->
     <aside class="results">
       <div class="results-header">
-        <div class="results-title">Results</div>
+        <div class="results-title">Demand Overview</div>
       </div>
-      <div class="results-list">
-        <div class="empty-state">
-          No results yet. Define filters and populate data.
+      <div class="results-list" id="dashboard">
+        <div class="dash-section" style="text-align: center; color: #999; padding: 40px 20px;">
+          Loading...
         </div>
+      </div>
+      <div class="legend">
+        <div class="legend-title">Demand Level</div>
+        <div class="legend-item"><div class="legend-color" style="background: #fee5d9;"></div> <span>Low</span></div>
+        <div class="legend-item"><div class="legend-color" style="background: #fcae91;"></div> <span>Medium</span></div>
+        <div class="legend-item"><div class="legend-color" style="background: #fb6a4a;"></div> <span>High</span></div>
+        <div class="legend-item"><div class="legend-color" style="background: #de2d26;"></div> <span>Critical</span></div>
       </div>
     </aside>
   </div>
 
   <script>
-    // Initialize Leaflet map
-    const map = L.map('map').setView([20, 0], 2);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 19
-    }).addTo(map);
+    // Data structure with Admin 1 → Admin 2 hierarchy + payment modalities + multiple orgs per locality
+    const demandData = {
+      'darfur': {
+        name: 'Darfur',
+        localities: {
+          'central_darfur': { name: 'Central Darfur', pop: 180000, lat: 12.2, lng: 24.2, orgs: { horizonaid: { demand: 20000, modalities: { mm: 7000, dw: 4000, cih: 5000, vch: 2000, haw: 1000, ot: 500, it: 500, sc: 0 } }, virtushelp: { demand: 15000, modalities: { mm: 5000, dw: 3000, cih: 4000, vch: 2000, haw: 1000, ot: 0, it: 0, sc: 0 } }, pathforward: { demand: 10000, modalities: { mm: 3000, dw: 1000, cih: 3000, vch: 1000, haw: 1000, ot: 500, it: 500, sc: 0 } } } },
+          'east_darfur': { name: 'East Darfur', pop: 150000, lat: 11.8, lng: 26.5, orgs: { virtushelp: { demand: 18000, modalities: { mm: 6000, dw: 4000, cih: 5000, vch: 2000, haw: 1000, ot: 0, it: 0, sc: 0 } }, nexusrelief: { demand: 20000, modalities: { mm: 7000, dw: 5000, cih: 5000, vch: 2000, haw: 1000, ot: 0, it: 0, sc: 0 } } } },
+          'north_darfur': { name: 'North Darfur', pop: 200000, lat: 14.5, lng: 25.5, orgs: { nexusrelief: { demand: 25000, modalities: { mm: 9000, dw: 5000, cih: 7000, vch: 2000, haw: 1000, ot: 500, it: 500, sc: 0 } }, solidarityworks: { demand: 18000, modalities: { mm: 6000, dw: 4000, cih: 5000, vch: 2000, haw: 1000, ot: 0, it: 0, sc: 0 } }, communitybuild: { demand: 9000, modalities: { mm: 3000, dw: 1000, cih: 2000, vch: 2000, haw: 1000, ot: 0, it: 0, sc: 0 } } } },
+          'south_darfur': { name: 'South Darfur', pop: 160000, lat: 10.5, lng: 24.5, orgs: { solidarityworks: { demand: 20000, modalities: { mm: 7000, dw: 4000, cih: 5000, vch: 2000, haw: 1000, ot: 500, it: 500, sc: 0 } }, communitybuild: { demand: 15000, modalities: { mm: 5000, dw: 3000, cih: 4000, vch: 2000, haw: 1000, ot: 0, it: 0, sc: 0 } }, empowerinc: { demand: 6000, modalities: { mm: 2000, dw: 1000, cih: 2000, vch: 1000, haw: 0, ot: 0, it: 0, sc: 0 } } } },
+          'west_darfur': { name: 'West Darfur', pop: 140000, lat: 12.5, lng: 22.5, orgs: { communitybuild: { demand: 18000, modalities: { mm: 6000, dw: 3000, cih: 5000, vch: 2000, haw: 1000, ot: 500, it: 500, sc: 0 } }, adaptfuture: { demand: 12000, modalities: { mm: 4000, dw: 2000, cih: 3000, vch: 2000, haw: 1000, ot: 0, it: 0, sc: 0 } }, pathforward: { demand: 5000, modalities: { mm: 2000, dw: 1000, cih: 1000, vch: 1000, haw: 0, ot: 0, it: 0, sc: 0 } } } }
+        }
+      },
+      'kordofan': {
+        name: 'South Kordofan',
+        localities: {
+          'blue_nile': { name: 'Blue Nile', pop: 120000, lat: 10.3, lng: 34.0, orgs: { adaptfuture: { demand: 15000, modalities: { mm: 5000, dw: 3000, cih: 4000, vch: 2000, haw: 1000, ot: 0, it: 0, sc: 0 } }, empowerinc: { demand: 13000, modalities: { mm: 4000, dw: 3000, cih: 3000, vch: 1000, haw: 1000, ot: 500, it: 500, sc: 0 } } } },
+          'south_kordofan': { name: 'South Kordofan', pop: 140000, lat: 11.0, lng: 31.0, orgs: { empowerinc: { demand: 16000, modalities: { mm: 5000, dw: 3000, cih: 4000, vch: 2000, haw: 1000, ot: 500, it: 500, sc: 0 } }, pathforward: { demand: 12000, modalities: { mm: 4000, dw: 2000, cih: 3000, vch: 1000, haw: 1000, ot: 500, it: 500, sc: 0 } }, horizonaid: { demand: 5000, modalities: { mm: 2000, dw: 1000, cih: 1000, vch: 500, haw: 500, ot: 0, it: 0, sc: 0 } } } }
+        }
+      },
+      'eastern': {
+        name: 'Eastern',
+        localities: {
+          'kassala': { name: 'Kassala', pop: 100000, lat: 15.5, lng: 36.0, orgs: { pathforward: { demand: 12000, modalities: { mm: 4000, dw: 2000, cih: 3000, vch: 1000, haw: 1000, ot: 500, it: 500, sc: 0 } }, horizonaid: { demand: 10000, modalities: { mm: 3000, dw: 2000, cih: 3000, vch: 1000, haw: 1000, ot: 0, it: 0, sc: 0 } } } },
+          'red_sea': { name: 'Red Sea', pop: 80000, lat: 19.5, lng: 37.5, orgs: { horizonaid: { demand: 9000, modalities: { mm: 3000, dw: 2000, cih: 2000, vch: 1000, haw: 1000, ot: 0, it: 0, sc: 0 } }, virtushelp: { demand: 9000, modalities: { mm: 3000, dw: 2000, cih: 2000, vch: 1000, haw: 1000, ot: 0, it: 0, sc: 0 } } } },
+          'gedaref': { name: 'Gedaref', pop: 110000, lat: 14.0, lng: 35.0, orgs: { virtushelp: { demand: 12000, modalities: { mm: 4000, dw: 2000, cih: 3000, vch: 1000, haw: 1000, ot: 500, it: 500, sc: 0 } }, nexusrelief: { demand: 13000, modalities: { mm: 4000, dw: 3000, cih: 4000, vch: 1000, haw: 1000, ot: 0, it: 0, sc: 0 } } } }
+        }
+      },
+      'central': {
+        name: 'Central',
+        localities: {
+          'khartoum': { name: 'Khartoum', pop: 250000, lat: 15.5, lng: 32.5, orgs: { nexusrelief: { demand: 30000, modalities: { mm: 12000, dw: 7000, cih: 7000, vch: 2000, haw: 1000, ot: 500, it: 500, sc: 0 } }, solidarityworks: { demand: 20000, modalities: { mm: 8000, dw: 4000, cih: 5000, vch: 2000, haw: 1000, ot: 0, it: 0, sc: 0 } }, communitybuild: { demand: 15000, modalities: { mm: 5000, dw: 4000, cih: 3000, vch: 1000, haw: 1000, ot: 500, it: 500, sc: 0 } } } },
+          'white_nile': { name: 'White Nile', pop: 90000, lat: 13.5, lng: 32.0, orgs: { solidarityworks: { demand: 11000, modalities: { mm: 4000, dw: 2000, cih: 3000, vch: 1000, haw: 500, ot: 500, it: 500, sc: 0 } }, empowerinc: { demand: 9000, modalities: { mm: 3000, dw: 2000, cih: 2000, vch: 1000, haw: 500, ot: 0, it: 0, sc: 0 } } } },
+          'gezira': { name: 'Gezira', pop: 130000, lat: 14.0, lng: 33.5, orgs: { communitybuild: { demand: 15000, modalities: { mm: 5000, dw: 3000, cih: 4000, vch: 1000, haw: 1000, ot: 500, it: 500, sc: 0 } }, adaptfuture: { demand: 15000, modalities: { mm: 5000, dw: 3000, cih: 4000, vch: 1000, haw: 1000, ot: 500, it: 500, sc: 0 } } } }
+        }
+      },
+      'northern': {
+        name: 'Northern',
+        localities: {
+          'northern': { name: 'Northern', pop: 70000, lat: 18.5, lng: 31.5, orgs: { adaptfuture: { demand: 8000, modalities: { mm: 3000, dw: 1000, cih: 2000, vch: 1000, haw: 1000, ot: 0, it: 0, sc: 0 } }, empowerinc: { demand: 7000, modalities: { mm: 2000, dw: 1000, cih: 2000, vch: 1000, haw: 500, ot: 500, it: 500, sc: 0 } } } },
+          'river_nile': { name: 'River Nile', pop: 60000, lat: 19.0, lng: 30.5, orgs: { empowerinc: { demand: 6000, modalities: { mm: 2000, dw: 1000, cih: 1000, vch: 500, haw: 500, ot: 500, it: 500, sc: 0 } }, pathforward: { demand: 6000, modalities: { mm: 2000, dw: 1000, cih: 1000, vch: 500, haw: 500, ot: 500, it: 500, sc: 0 } } } }
+        }
+      }
+    };
 
-    // TODO: Add data and interactivity
+    const map = L.map('map').setView([12, 30], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    let heatmap = null;
+
+    function toggleFilter(el) {
+      el.parentElement.classList.toggle('open');
+    }
+
+    function updateAdmin1() {
+      const admin1 = document.getElementById('admin1-select').value;
+      const admin2Select = document.getElementById('admin2-select');
+      admin2Select.innerHTML = '<option value="">All Localities</option>';
+      
+      if (admin1 && demandData[admin1]) {
+        Object.entries(demandData[admin1].localities).forEach(([key, locality]) => {
+          const opt = document.createElement('option');
+          opt.value = key;
+          opt.textContent = locality.name;
+          admin2Select.appendChild(opt);
+        });
+      }
+      document.getElementById('admin1-sel').textContent = admin1 ? demandData[admin1].name : '';
+      updateFilters();
+    }
+
+    function updateFilters() {
+      const admin1 = document.getElementById('admin1-select').value;
+      const admin2 = document.getElementById('admin2-select').value;
+      const period = document.getElementById('period-select').value;
+      const modality = document.getElementById('modality-select').value;
+      const org = document.getElementById('org-select').value;
+
+      document.getElementById('admin2-sel').textContent = '';
+      if (admin1 && admin2 && demandData[admin1].localities[admin2]) {
+        document.getElementById('admin2-sel').textContent = demandData[admin1].localities[admin2].name;
+      } else if (admin1) {
+        document.getElementById('admin2-sel').textContent = 'Multiple';
+      }
+      
+      document.getElementById('period-sel').textContent = { '1m': '1 Month', '3m': '3 Months', '6m': '6 Months', '12m': '12 Months' }[period];
+      
+      const modalityLabels = { mm: 'Mobile Money', dw: 'Digital Wallet', cih: 'Cash in Hand', vch: 'Voucher', haw: 'Hawala', ot: 'Op Transfer', it: 'Intl Transfer', sc: 'StableCoin' };
+      document.getElementById('modality-sel').textContent = modality ? modalityLabels[modality] : '';
+      
+      const orgLabels = { horizonaid: 'Horizon Aid', virtushelp: 'Virtus Help', nexusrelief: 'Nexus Relief', solidarityworks: 'Solidarity Works', communitybuild: 'Community Build', adaptfuture: 'Adapt Future', empowerinc: 'Empower Inc', pathforward: 'Path Forward' };
+      document.getElementById('org-sel').textContent = org ? orgLabels[org] : '';
+
+      // Build filtered data
+      const heatmapData = [];
+      let totalDemand = 0;
+      let localityCount = 0;
+      let modalityTotals = { mm: 0, dw: 0, cih: 0, vch: 0, haw: 0, ot: 0, it: 0, sc: 0 };
+      let orgTotals = { horizonaid: 0, virtushelp: 0, nexusrelief: 0, solidarityworks: 0, communitybuild: 0, adaptfuture: 0, empowerinc: 0, pathforward: 0 };
+
+      Object.entries(demandData).forEach(([admin1Key, state]) => {
+        if (admin1 && admin1Key !== admin1) return;
+
+        Object.entries(state.localities).forEach(([admin2Key, locality]) => {
+          if (admin2 && admin2Key !== admin2) return;
+
+          let localityDemand = 0;
+
+          // Loop through orgs in this locality
+          Object.entries(locality.orgs).forEach(([orgKey, orgData]) => {
+            if (org && orgKey !== org) return;
+
+            let demand = orgData.demand;
+            if (modality) {
+              demand = orgData.modalities[modality] || 0;
+            } else {
+              Object.keys(orgData.modalities).forEach(mod => {
+                modalityTotals[mod] += orgData.modalities[mod];
+              });
+            }
+
+            localityDemand += demand;
+            totalDemand += demand;
+            orgTotals[orgKey] += demand;
+          });
+
+          if (localityDemand > 0) {
+            const intensity = Math.min(localityDemand / 70000, 1);
+            heatmapData.push([locality.lat, locality.lng, intensity]);
+            localityCount++;
+          }
+        });
+      });
+
+      // Update heatmap
+      if (heatmap) map.removeLayer(heatmap);
+      if (L.heatLayer) {
+        heatmap = L.heatLayer(heatmapData, {
+          radius: 45, blur: 35, maxZoom: 17, minOpacity: 0.3,
+          gradient: { 0.0: '#fee5d9', 0.25: '#fcae91', 0.5: '#fb6a4a', 0.75: '#de2d26', 1.0: '#a50f15' }
+        }).addTo(map);
+      }
+
+      // Update counter
+      document.getElementById('total-demand').textContent = Math.round(totalDemand / 1000) + 'k';
+
+      // Update dashboard
+      const periodFactors = { '1m': 0.33, '3m': 1, '6m': 2, '12m': 4 };
+      const scaledDemand = Math.round(totalDemand * periodFactors[period]);
+      
+      let dashHTML = `
+        <div class="dash-section">
+          <div class="dash-title">${ { '1m': '1-Month', '3m': '3-Month', '6m': '6-Month', '12m': '12-Month' }[period] } Forecast</div>
+          <div class="stat-row">
+            <span class="stat-label">Total Demand</span>
+            <span class="stat-value">${(scaledDemand / 1000).toFixed(0)}k</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Locations</span>
+            <span class="stat-value">${localityCount}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Avg per Location</span>
+            <span class="stat-value">${localityCount > 0 ? Math.round(scaledDemand / localityCount / 1000) : 0}k</span>
+          </div>
+        </div>
+      `;
+
+      // Add payment method breakdown if no modality filter
+      if (!modality && Object.values(modalityTotals).some(v => v > 0)) {
+        dashHTML += `<div class="dash-section">
+          <div class="dash-title">By Payment Method</div>`;
+        Object.entries(modalityTotals).forEach(([key, total]) => {
+          if (total > 0) {
+            dashHTML += `<div class="stat-row">
+              <span class="stat-label">${modalityLabels[key]}</span>
+              <span class="stat-value">${(total / 1000).toFixed(0)}k</span>
+            </div>`;
+          }
+        });
+        dashHTML += `</div>`;
+      }
+
+      // Add org breakdown if no org filter
+      if (!org && Object.values(orgTotals).some(v => v > 0)) {
+        dashHTML += `<div class="dash-section">
+          <div class="dash-title">By Organization</div>`;
+        Object.entries(orgTotals).forEach(([key, total]) => {
+          if (total > 0) {
+            dashHTML += `<div class="stat-row">
+              <span class="stat-label">${orgLabels[key]}</span>
+              <span class="stat-value">${(total / 1000).toFixed(0)}k</span>
+            </div>`;
+          }
+        });
+        dashHTML += `</div>`;
+      }
+
+      document.getElementById('dashboard').innerHTML = dashHTML;
+    }
+
+    function clearFilters() {
+      document.getElementById('admin1-select').value = '';
+      document.getElementById('admin2-select').value = '';
+      document.getElementById('period-select').value = '3m';
+      document.getElementById('modality-select').value = '';
+      document.getElementById('org-select').value = '';
+      updateAdmin1();
+      updateFilters();
+    }
+
+    document.addEventListener('DOMContentLoaded', updateFilters);
   </script>
 </body>
 </html>
