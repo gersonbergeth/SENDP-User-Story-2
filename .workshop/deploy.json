@@ -1,0 +1,7 @@
+{
+  "backend": {
+    "root": ".",
+    "entry": "main:app",
+    "runner": "uvicorn"
+  }
+}
